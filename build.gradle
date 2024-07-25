@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'atipera.com'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
+    implementation 'org.springframework.boot:spring-boot-starter-logging:3.3.2'
+    implementation 'org.apache.commons:commons-lang3:3.15.0'
+
+    // Spock dependencies
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
+    testImplementation 'org.spockframework:spock-spring:2.3-groovy-4.0'
+}
+
+sourceSets {
+    test {
+        groovy {
+            srcDir 'src/test/groovy'
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform() // Configure Gradle to use JUnit Platform, which is required by Spock
+    classpath += sourceSets.test.output
+}
