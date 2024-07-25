@@ -33,10 +33,10 @@ To set up and run the Hire API locally, follow these steps:
 
 3. **Build the Project:**
 
-   Ensure you have [Maven](https://maven.apache.org/) installed. Run the following command to build the project:
+   Ensure you have [Gradle](https://gradle.org/) installed. Run the following command to build the project:
 
     ```bash
-    mvn clean install
+    ./gradlew build
     ```
 
 4. **Run the Application:**
@@ -44,10 +44,9 @@ To set up and run the Hire API locally, follow these steps:
    After building the project, you can run the application using:
 
     ```bash
-    mvn spring-boot:run
+    ./gradlew bootRun
     ```
-
-## Configuration (cont.)
+## Configuration
 
 **Explanation of Properties:**
 
@@ -126,15 +125,7 @@ GET /api/github/repositories/{username}
       ```
 
 - **Code:** `406 Not Acceptable`
-    - **Content:**
-
-      ```json
-      {
-        "status": 406,
-        "message": "Not Acceptable"
-      }
-      ```
-
+You should add [Headers](#headers)
 ## Error Handling
 
 The API handles errors and provides structured responses:
@@ -155,7 +146,7 @@ The API handles errors and provides structured responses:
 
 The application uses logging to monitor its behavior. The default logging level is set to INFO, but you can adjust it as needed.
 
-### Configuration
+Logging Configuration
 
 Logging is configured in `src/main/resources/log4j2.xml`. You can modify the logging level and settings according to your requirements.
 
@@ -164,20 +155,6 @@ Logging is configured in `src/main/resources/log4j2.xml`. You can modify the log
 **UserNotFoundException:**
 
     WARN 209716 --- [HireApi] [nio-2407-exec-3] a.com.hireapi.service.GitHubClient : User not found: olekmysko2
-
-**Exception Handling:**
-
-    WARN 209716 --- [HireApi] [nio-2407-exec-3] .m.m.a.ExceptionHandlerExceptionResolver : Resolved [atipera.com.hireapi.exception.UserNotFoundException: olekmysko2] was logged twice: User not found: olekmysko2
-
-## Contributing
-
-Contributions are welcome! To contribute:
-
-1. Fork the repository.
-2. Create a new branch for your changes.
-3. Commit your changes with descriptive messages.
-4. Push your changes to your forked repository.
-5. Create a pull request for review.
 
 ## License
 **free :)**
