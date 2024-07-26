@@ -16,9 +16,9 @@ class GitHubRepositoryServiceSpec extends Specification {
     @Subject
     GitHubRepositoryService gitHubRepositoryService = new GitHubRepositoryService(gitHubClient)
 
-    private final RepositoryResponse repoResponse = new RepositoryResponse(name: "repo1", owner: new RepositoryResponse.Owner(login: "owner1"), fork: false, branches: [new BranchResponse(name: "branch1", commit: new BranchResponse.Commit(sha: "sha1"))])
+    private final RepositoryResponse repoResponse = new RepositoryResponse( "repo1", new RepositoryResponse.Owner( "owner1"), false, [new BranchResponse("branch1",  new BranchResponse.ShaCommit("sha1"))])
     private final List<RepositoryResponse> repositories = [repoResponse]
-    private final List<BranchResponse> branches = [new BranchResponse(name: "branch1", commit: new BranchResponse.Commit(sha: "sha1"))]
+    private final List<BranchResponse> branches = [new BranchResponse( "branch1", new BranchResponse.ShaCommit("sha1"))]
 
     def validUser() {
         given:
@@ -35,7 +35,7 @@ class GitHubRepositoryServiceSpec extends Specification {
         result[0].ownerLogin == "owner1"
         result[0].branches.size() == 1
         result[0].branches[0].name == "branch1"
-        result[0].branches[0].commit.sha == "sha1"
+        result[0].branches[0].shaCommit.sha == "sha1"
     }
 
     def nonExistentUser() {

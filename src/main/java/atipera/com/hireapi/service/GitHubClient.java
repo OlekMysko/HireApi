@@ -24,18 +24,16 @@ public class GitHubClient {
     private final URLConfiguration urlConfig;
 
     public List<RepositoryResponse> getRepositories(final String username) throws UserNotFoundException {
-        String url = String.join(StringUtils.EMPTY, urlConfig.getGithubApiUrl(), urlConfig.getUserUrlSuffix(), username, urlConfig.getRepositoriesUrlSuffix());
+        String url = String.join(StringUtils.EMPTY, urlConfig.getApi_url(), urlConfig.getUser_url_suffix(), username, urlConfig.getRepositories_url_suffix());
         return getListFromResponse(url, RepositoryResponse[].class, username)
                 .orElseThrow(() -> new UserNotFoundException(String.format("User not found: %s", username)));
     }
 
     public List<BranchResponse> getBranches(final String username, final String repoName) throws GitHubApiException, UserNotFoundException {
-        String url = String.join(StringUtils.EMPTY, urlConfig.getGithubApiUrl(), String.format(urlConfig.getBranchesUrlSuffixTemplate(), username, repoName));
+        String url = String.join(StringUtils.EMPTY, urlConfig.getApi_url(), String.format(urlConfig.getBranches_url_suffix_template(), username, repoName));
         try {
             return getListFromResponse(url, BranchResponse[].class, username)
                     .orElse(Collections.emptyList());
-        } catch (UserNotFoundException e) {
-            throw e;
         } catch (RestClientException e) {
             String msg = "Exception while communicating with GitHub API: {}";
             LOG.error(msg, url, e);

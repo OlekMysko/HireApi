@@ -2,6 +2,7 @@ package service
 
 import atipera.com.hireapi.config.URLConfiguration
 import atipera.com.hireapi.exception.UserNotFoundException
+import atipera.com.hireapi.model.BranchResponse
 import atipera.com.hireapi.model.RepositoryResponse
 import atipera.com.hireapi.service.GitHubClient
 import org.springframework.http.HttpStatus
@@ -22,12 +23,14 @@ class GitHubClientSpec extends Specification {
     @Unroll
     def "should get repositories for username #username"() {
         given:
-        urlConfiguration.githubApiUrl >> "https://api.github.com"
-        urlConfiguration.userUrlSuffix >> "/users/"
-        urlConfiguration.repositoriesUrlSuffix >> "/repos"
+        urlConfiguration.api_url >> "https://api.github.com"
+        urlConfiguration.user_url_suffix >> "/users/"
+        urlConfiguration.repositories_url_suffix >> "/repos"
         String url = "https://api.github.com/users/$username/repos"
         RepositoryResponse[] responseArray = [
-                new RepositoryResponse(name: "repo1", owner: new RepositoryResponse.Owner(login: "owner1"), fork: false)
+                new RepositoryResponse("repo1", new RepositoryResponse.Owner("owner1"), false, List.of(
+                        new BranchResponse("master", new BranchResponse.ShaCommit("5072be5b55fcaeabb1397a24bed4e792a1c5ead9"))
+                ))
         ]
 
         restTemplate.getForObject(url, RepositoryResponse[].class) >> responseArray
@@ -38,7 +41,7 @@ class GitHubClientSpec extends Specification {
         then:
         result.size() == 1
         result[0].name == "repo1"
-        result[0].owner.login == "owner1"
+        result[0].owner().login() == "owner1"
 
         where:
         username << ["validUser", "anotherUser"]
@@ -46,9 +49,9 @@ class GitHubClientSpec extends Specification {
 
     def "should throw UserNotFoundException when user is not found"() {
         given:
-        urlConfiguration.githubApiUrl >> "https://api.github.com"
-        urlConfiguration.userUrlSuffix >> "/users/"
-        urlConfiguration.repositoriesUrlSuffix >> "/repos"
+        urlConfiguration.api_url >> "https://api.github.com"
+        urlConfiguration.user_url_suffix >> "/users/"
+        urlConfiguration.repositories_url_suffix >> "/repos"
         String url = "https://api.github.com/users/nonExistentUser/repos"
 
         restTemplate.getForObject(url, RepositoryResponse[].class) >> { throw new HttpClientErrorException(HttpStatus.NOT_FOUND) }

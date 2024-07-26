@@ -1,22 +1,17 @@
 package atipera.com.hireapi.config;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConfigurationProperties(prefix = "github")
 @Getter
+@Setter
 public class URLConfiguration {
-    @Value("${github.api.url}")
-    private String githubApiUrl;
-
-    @Value("${repositories.url.suffix}")
-    private String repositoriesUrlSuffix;
-
-    @Value("${user.url.suffix}")
-    private String userUrlSuffix;
-
-    @Value("${branches.url.suffix.template}")
-    private String branchesUrlSuffixTemplate;
-
+    private String api_url;
+    private String repositories_url_suffix;
+    private String user_url_suffix;
+    private String branches_url_suffix_template;
 }

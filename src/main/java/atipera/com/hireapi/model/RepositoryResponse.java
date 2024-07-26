@@ -1,19 +1,10 @@
 package atipera.com.hireapi.model;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
-public class RepositoryResponse {
-    private String name;
-    private Owner owner;
 
-    private boolean fork;
-    private List<BranchResponse> branches;
-
-    @Data
-    public static class Owner {
-        private String login;
+public record RepositoryResponse(String name, Owner owner, boolean fork,
+                                 List<BranchResponse> branches) {
+    public record Owner(String login) {
     }
 }
