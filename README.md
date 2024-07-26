@@ -52,9 +52,14 @@ To set up and run the Hire API locally, follow these steps:
 
 - `server.port`: The port on which the application will run.
 - `github.api.url`: The base URL for the GitHub API.
-- `repositories.url.suffix`: The suffix to append to the base URL to fetch repositories.
-- `user.url.suffix`: The suffix to append to the base URL to fetch user details.
-- `branches.url.suffix.template`: The URL template for fetching branches of a repository.
+- `github.repositories_url_suffix`: The suffix to append to the base URL to fetch repositories.
+- `github.user_url_suffix`: The suffix to append to the base URL to fetch user details.
+- `github.branches_url_suffix_template`: The URL template for fetching branches of a repository.
+- `github.token`: Your GitHub API token (API has some limits.
+
+  **Create a GitHub Personal Access Token:**
+  Go to your GitHub account settings.Navigate to Developer settings -> Personal access tokens.
+    Generate a new token with the necessary permissions.
 
 Read more: [GitHub API Documentation](https://developer.github.com/v3)
 
@@ -79,12 +84,6 @@ GET /api/github/repositories/{username}
 
 - **URL:** `/api/github/repositories/{username}`
 - **Method:** `GET`
-
-#### Headers:
-
-| Key     | Value           |
-|---------|-----------------|
-| Accept  | application/json |
 
 #### URL Parameters:
 
@@ -123,9 +122,6 @@ GET /api/github/repositories/{username}
         "message": "User not found: {username}"
       }
       ```
-
-- **Code:** `406 Not Acceptable`
-You should add [Headers](#headers)
 ## Error Handling
 
 The API handles errors and provides structured responses:

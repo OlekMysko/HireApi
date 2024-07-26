@@ -44,6 +44,6 @@ sourceSets {
 }
 
 tasks.named('test') {
-    useJUnitPlatform() // Configure Gradle to use JUnit Platform, which is required by Spock
+    useJUnitPlatform()
     classpath += sourceSets.test.output
 }

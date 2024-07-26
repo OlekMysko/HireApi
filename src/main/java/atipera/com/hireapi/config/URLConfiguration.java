@@ -14,4 +14,5 @@ public class URLConfiguration {
     private String repositories_url_suffix;
     private String user_url_suffix;
     private String branches_url_suffix_template;
+    private String token;
 }
