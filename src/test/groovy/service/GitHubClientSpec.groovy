@@ -29,7 +29,7 @@ class GitHubClientSpec extends Specification {
         String url = "https://api.github.com/users/$username/repos"
         RepositoryResponse[] responseArray = [
                 new RepositoryResponse("repo1", new RepositoryResponse.Owner("owner1"), false, List.of(
-                        new BranchResponse("master", new BranchResponse.ShaCommit("5072be5b55fcaeabb1397a24bed4e792a1c5ead9"))
+                        new BranchResponse("master", new BranchResponse.Commit("5072be5b55fcaeabb1397a24bed4e792a1c5ead9"))
                 ))
         ]
 
