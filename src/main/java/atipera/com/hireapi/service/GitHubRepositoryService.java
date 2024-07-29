@@ -1,37 +1,30 @@
 package atipera.com.hireapi.service;
 
-import atipera.com.hireapi.exception.GitHubApiException;
-import atipera.com.hireapi.exception.UserNotFoundException;
 import atipera.com.hireapi.model.RepositoryResponse;
 import atipera.com.hireapi.model.RepositoryResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GitHubRepositoryService {
-
     private final GitHubClient gitHubClient;
 
-    public List<RepositoryResponseDto> getRepositories(final String username) throws UserNotFoundException, GitHubApiException {
-        List<RepositoryResponse> repositories = gitHubClient.getRepositories(username);
-        return getBranchesForRepositories(username, repositories);
-    }
-
-    private List<RepositoryResponseDto> getBranchesForRepositories(final String username, final List<RepositoryResponse> repositories) {
-        return repositories.stream()
+    public Mono<List<RepositoryResponseDto>> getRepositories(final String username) {
+        return gitHubClient.getRepositories(username)
+                .flatMapMany(Flux::fromIterable)
                 .filter(repo -> !repo.fork())
-                .map(repo -> createRepositoryResponseDto(username, repo))
-                .collect(Collectors.toList());
+                .flatMap(repo -> createRepositoryResponseDto(username, repo))
+                .collectList();
     }
 
-    private RepositoryResponseDto createRepositoryResponseDto(String username, RepositoryResponse repo) {
-        return new RepositoryResponseDto(
-                repo.name(),
-                repo.owner().login(),
-                gitHubClient.getBranches(username, repo.name()));
+    private Mono<RepositoryResponseDto> createRepositoryResponseDto(String username, RepositoryResponse repo) {
+        return gitHubClient.getBranches(username, repo.name())
+                .collectList()
+                .map(branches -> new RepositoryResponseDto(repo.name(), repo.owner().login(), branches));
     }
 }

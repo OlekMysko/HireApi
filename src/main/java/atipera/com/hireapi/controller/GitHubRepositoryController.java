@@ -1,17 +1,14 @@
 package atipera.com.hireapi.controller;
 
-import atipera.com.hireapi.exception.GitHubApiException;
-import atipera.com.hireapi.exception.UserNotFoundException;
 import atipera.com.hireapi.model.RepositoryResponseDto;
 import atipera.com.hireapi.service.GitHubRepositoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -24,10 +21,7 @@ public class GitHubRepositoryController {
     private final GitHubRepositoryService gitHubRepositoryService;
 
     @GetMapping(value = USER_NAME, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<RepositoryResponseDto>> getRepositories(
-            @PathVariable final String username, @RequestHeader(HttpHeaders.ACCEPT) final String acceptHeader)
-            throws UserNotFoundException, GitHubApiException {
-        List<RepositoryResponseDto> repositories = gitHubRepositoryService.getRepositories(username);
-        return ResponseEntity.ok(repositories);
+    public Mono<ResponseEntity<List<RepositoryResponseDto>>> getRepositories(@PathVariable final String username) {
+        return gitHubRepositoryService.getRepositories(username).map(ResponseEntity::ok);
     }
 }

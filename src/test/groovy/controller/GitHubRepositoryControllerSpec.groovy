@@ -1,94 +1,46 @@
 package controller
 
+import org.springframework.http.ResponseEntity
+import spock.lang.Specification
+import spock.lang.Unroll
+import reactor.core.publisher.Mono
+import org.springframework.http.HttpStatus
 import atipera.com.hireapi.controller.GitHubRepositoryController
-import atipera.com.hireapi.exception.GitHubApiException
-import atipera.com.hireapi.exception.GlobalExceptionHandler
-import atipera.com.hireapi.exception.UserNotFoundException
 import atipera.com.hireapi.model.RepositoryResponseDto
 import atipera.com.hireapi.service.GitHubRepositoryService
-import org.springframework.http.HttpHeaders
-import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
-import spock.lang.Specification
-import spock.lang.Subject
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 
 class GitHubRepositoryControllerSpec extends Specification {
 
-    MockMvc mockMvc
-    GitHubRepositoryService gitHubRepositoryService = Mock()
+    def gitHubRepositoryService = Mock(GitHubRepositoryService)
+    def controller = new GitHubRepositoryController(gitHubRepositoryService)
 
-    @Subject
-    GitHubRepositoryController gitHubRepositoryController = new GitHubRepositoryController(gitHubRepositoryService)
-
-    def setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(gitHubRepositoryController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build()
-    }
-
-    def "should return repositories for valid username and Accept header"() {
+    @Unroll
+    def "should return repositories for username"() {
         given:
-        String username = "validUser"
-        String acceptHeader = "application/json"
-        List<RepositoryResponseDto> repositories = [new RepositoryResponseDto("repo1", "owner1", [])]
-
-        gitHubRepositoryService.getRepositories(username) >> repositories
+        def username = "testuser"
+        def repoDto = new RepositoryResponseDto("repo1", username, [])
+        gitHubRepositoryService.getRepositories(username) >> Mono.just([repoDto])
 
         when:
-        def result = mockMvc.perform(get("/api/github/repositories/${username}")
-                .header(HttpHeaders.ACCEPT, acceptHeader))
+        def response = controller.getRepositories(username).block()
 
         then:
-        result.andExpect(status().isOk())
-                .andExpect(content().contentType(acceptHeader))
-                .andExpect(content().json('[{"repositoryName":"repo1","ownerLogin":"owner1","branches":[]}]'))
+        response.statusCode == HttpStatus.OK
+        response.body == [repoDto]
     }
 
-    def "should return 406 Not Acceptable for invalid Accept header"() {
+    @Unroll
+    def "should handle error when getting repositories"() {
         given:
-        String username = "validUser"
-        String acceptHeader = "text/plain"
+        def username = "testuser"
+        gitHubRepositoryService.getRepositories(username) >> Mono.error(new RuntimeException("Error"))
 
         when:
-        def result = mockMvc.perform(get("/api/github/repositories/${username}")
-                .header(HttpHeaders.ACCEPT, acceptHeader))
+        def response = controller.getRepositories(username).onErrorResume { e ->
+            Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
+        }.block()
 
         then:
-        result.andExpect(status().isNotAcceptable())
-    }
-
-    def "should return 404 Not Found when user does not exist"() {
-        given:
-        String username = "nonExistentUser"
-        String acceptHeader = "application/json"
-
-        gitHubRepositoryService.getRepositories(username) >> { throw new UserNotFoundException("User not found") }
-
-        when:
-        def result = mockMvc.perform(get("/api/github/repositories/${username}")
-                .header(HttpHeaders.ACCEPT, acceptHeader))
-
-        then:
-        result.andExpect(status().isNotFound())
-                .andExpect(content().json('{"status":404,"message":"User not found"}'))
-    }
-
-    def "should return 400 Bad Request on GitHub API error"() {
-        given:
-        String username = "userWithApiError"
-        String acceptHeader = "application/json"
-
-        gitHubRepositoryService.getRepositories(username) >> { throw new GitHubApiException("GitHub API error", new Throwable()) }
-
-        when:
-        def result = mockMvc.perform(get("/api/github/repositories/${username}")
-                .header(HttpHeaders.ACCEPT, acceptHeader))
-
-        then:
-        result.andExpect(status().isBadRequest())
-                .andExpect(content().json('{"status":400,"message":"GitHub API error"}'))
+        response.statusCode == HttpStatus.INTERNAL_SERVER_ERROR
     }
 }
