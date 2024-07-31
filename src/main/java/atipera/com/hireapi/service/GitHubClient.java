@@ -7,8 +7,6 @@ import atipera.com.hireapi.model.BranchResponse;
 import atipera.com.hireapi.model.RepositoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
@@ -22,7 +20,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class GitHubClient {
-    private static final Logger LOG = LoggerFactory.getLogger(GitHubClient.class);
+
     private static final String ERROR_MSG = "Exception while communicating with GitHub API:";
     private final WebClient.Builder webClientBuilder;
     private final URLConfiguration urlConfig;
